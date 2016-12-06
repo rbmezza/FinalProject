@@ -164,7 +164,6 @@ public class History extends Activity implements  HistoryAdapter.ItemClickCallba
 
             }
         }){
-
             @Override
             public String getBodyContentType() {
                 return "application/x-www-form-urlencoded; charset=UTF-8";

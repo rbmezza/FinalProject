@@ -2,6 +2,7 @@ package com.example.yugenshtil.finalproject.model;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,14 +12,19 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.example.yugenshtil.finalproject.Account.Login;
 import com.example.yugenshtil.finalproject.MainMenu;
 import com.example.yugenshtil.finalproject.ServerConnection.MySingleton;
 import com.example.yugenshtil.finalproject.R;
 import com.example.yugenshtil.finalproject.useCases.History;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ItemHistoryDisplayActivity extends Activity {
 
@@ -31,6 +37,8 @@ public class ItemHistoryDisplayActivity extends Activity {
     private String DELETEITEMSURL1="http://senecafleamarket.azurewebsites.net/api/User/"; //add userId
     private String DELETEITEMSURL2="/History"; //add historyId
     public ProgressDialog pd;
+    private String token = "";
+    SharedPreferences sharedpreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +54,13 @@ public class ItemHistoryDisplayActivity extends Activity {
         Intent i = getIntent();
         Bundle extras = i.getExtras();
 
-
+        sharedpreferences = getSharedPreferences(Login.MyPREFERENCES, Context.MODE_PRIVATE);
         ItemId = extras.getString("ItemId");
         SellerId = extras.getString("SellerId");
         Title = extras.getString("Title");
         Description = extras.getString("Description");
         Price = extras.getString("Price");
+        token = sharedpreferences.getString("token","");
 
         etTitle.setText(Title);
         etDescription.setText(Description);
@@ -95,7 +104,29 @@ public class ItemHistoryDisplayActivity extends Activity {
                         Log.d("LOG :","Response error is "+error);
                     }
                 }
-        );
+        ){
+            @Override
+            public String getBodyContentType() {
+                return "application/x-www-form-urlencoded; charset=UTF-8";
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                Log.d("LOG : ","I will add token " + token);
+                headers.put("Authorization","Bearer "+token);
+                headers.put("Accept","image/*");
+                // params.put("username",email);
+                //params.put("password", password);
+
+                Log.d("Token ", headers.toString());
+
+                return headers;
+            }
+
+
+
+        };
         MySingleton.getInstance(ItemHistoryDisplayActivity.this).addToRequestQueue(dr);
 
     }
